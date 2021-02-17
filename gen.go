@@ -39,6 +39,7 @@ func Generate(params *Params) error {
 
 	// Type Of Invoice
 	TypeOfInv := sep.NONCASH
+	fmt.Println("---------------------------------------------------------------")
 	fmt.Println("Izaberite Vrstu računa:")
 	fmt.Println("[1] Gotovinski (CASH)")
 	fmt.Println("[2] Bezgotovinski (NONCASH)")
@@ -57,6 +58,8 @@ func Generate(params *Params) error {
 	}
 
 	PayMethodType := sep.ACCOUNT
+	fmt.Println()
+	fmt.Println("---------------------------------------------------------------")
 	fmt.Println("Načini plaćanja:")
 	switch TypeOfInv {
 	case sep.CASH:
@@ -119,6 +122,8 @@ func Generate(params *Params) error {
 
 	// Subsequent Delivery Type
 	SubseqDelivType := sep.SubseqDelivType("")
+	fmt.Println()
+	fmt.Println("---------------------------------------------------------------")
 	stringValue = scan("Naknadno dostavljanje (da ili ne): ")
 	if strings.Compare(stringValue, "da") == 0 {
 		fmt.Println("Izaberite tip naknadne dostave:")
@@ -149,12 +154,16 @@ func Generate(params *Params) error {
 	}
 
 	// Invoice Ordinal Number
+	fmt.Println()
+	fmt.Println("---------------------------------------------------------------")
 	stringValue = scan("Redni broj računa: ")
 	InvOrdNum, err := strconv.ParseUint(stringValue, 10, 64)
 	if err != nil {
 		return err
 	}
 	// Internal Order Number
+	fmt.Println()
+	fmt.Println("---------------------------------------------------------------")
 	InternalOrdNum := scan("Interni broj računa (ostavite prazno ako ne postoji): ")
 
 	// Seller
@@ -169,6 +178,8 @@ func Generate(params *Params) error {
 
 	// Fill in Buyer fields. Check through sep.Config.Buyers by name or PIB
 	var Buyer *sep.Buyer
+	fmt.Println()
+	fmt.Println("---------------------------------------------------------------")
 	stringValue = scan("Ime ili PIB kupca: ")
 	for _, it := range params.SepConfig.Buyers {
 		if strings.Contains(it.Name, stringValue) {
@@ -180,6 +191,8 @@ func Generate(params *Params) error {
 		}
 	}
 	if Buyer == nil {
+		fmt.Println()
+		fmt.Println("---------------------------------------------------------------")
 		fmt.Println("Kupac ne postoji, molim upišite sledeči podatke:")
 		Buyer = &sep.Buyer{
 			IDType:  sep.IDTypeTIN,
@@ -196,6 +209,8 @@ func Generate(params *Params) error {
 		Code:   sep.EUR,
 		ExRate: 1.0,
 	}
+	fmt.Println()
+	fmt.Println("---------------------------------------------------------------")
 	CurrencyCode := scan("Valuta (EUR, USD, RUB, GBP, itd.): ")
 	if strings.Compare(CurrencyCode, string(sep.EUR)) != 0 {
 		stringValue = scan(fmt.Sprintf("[5] Kurs razmjene %s od %s: ", string(Currency.Code), string(sep.EUR)))
@@ -207,6 +222,8 @@ func Generate(params *Params) error {
 		Currency.ExRate = float64Value
 	}
 
+	fmt.Println()
+	fmt.Println("---------------------------------------------------------------")
 	stringValue = scan("Količina stavke: ")
 	NumOfItems, err := strconv.Atoi(stringValue)
 	if err != nil {
@@ -226,14 +243,30 @@ func Generate(params *Params) error {
 	// Fill in Invoice.Items
 	Items := []*sep.Item{}
 	for i := 0; i < NumOfItems; i++ {
+		fmt.Println()
+		fmt.Println("---------------------------------------------------------------")
 		fmt.Printf("Stavka #%d:\n", i+1)
 		N := scan("Naziv stavke (roba ili usluge): ")
+		fmt.Println()
+		fmt.Println("---------------------------------------------------------------")
 		U := scan("Jedinica mjere (komad, jedinica za mjerenje težine, jedinica za mjerenje dužine, itd.): ")
+		fmt.Println()
+		fmt.Println("---------------------------------------------------------------")
 		Q := scan("Količina ili broj stavki: ")
+		fmt.Println()
+		fmt.Println("---------------------------------------------------------------")
 		UPB := scan("Jedinična cijena prije dodavanja PDV-a: ")
+		fmt.Println()
+		fmt.Println("---------------------------------------------------------------")
 		VR := scan("Stopa PDV-a: ")
+		fmt.Println()
+		fmt.Println("---------------------------------------------------------------")
 		R := scan("Procenat rabata: ")
+		fmt.Println()
+		fmt.Println("---------------------------------------------------------------")
 		EX := sep.ExemptFromVATType("")
+		fmt.Println()
+		fmt.Println("---------------------------------------------------------------")
 		stringValue = scan("Izuzeće od plaćanja PDV-a (da ili ne): ")
 		if strings.Compare(stringValue, "da") == 0 {
 			fmt.Println("Izaberite član za izuzeće od plaćanja PDV-a:")
