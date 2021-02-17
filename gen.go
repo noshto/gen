@@ -53,7 +53,7 @@ func Generate(params *Params) error {
 	case 2:
 		TypeOfInv = sep.NONCASH
 	default:
-		TypeOfInv = sep.NONCASH
+		return fmt.Errorf("invalid TypeOfInv")
 	}
 
 	PayMethodType := sep.ACCOUNT
@@ -79,7 +79,7 @@ func Generate(params *Params) error {
 		case 4:
 			PayMethodType = sep.OTHER_CASH
 		default:
-			PayMethodType = sep.OTHER
+			return fmt.Errorf("invalid PayMethodType")
 		}
 	case sep.NONCASH:
 		fmt.Println("[1] Kreditna i debitna kartica banke izdata poreskom obvezniku (BUSINESSCARD)")
@@ -113,7 +113,7 @@ func Generate(params *Params) error {
 		case 8:
 			PayMethodType = sep.OTHER
 		default:
-			PayMethodType = sep.OTHER
+			return fmt.Errorf("invalid PayMethodType")
 		}
 	}
 
@@ -144,7 +144,7 @@ func Generate(params *Params) error {
 		case 5:
 			SubseqDelivType = sep.BUSINESSNEED
 		default:
-			SubseqDelivType = sep.BOUNDBOOK
+			return fmt.Errorf("invalid SubseqDelivType")
 		}
 	}
 
@@ -198,7 +198,7 @@ func Generate(params *Params) error {
 	}
 	CurrencyCode := scan("Valuta (EUR, USD, RUB, GBP, itd.): ")
 	if strings.Compare(CurrencyCode, string(sep.EUR)) != 0 {
-		stringValue = scan(fmt.Sprintf("[5] Kurs razmjene %v od %v: ", Currency, string(sep.EUR)))
+		stringValue = scan(fmt.Sprintf("[5] Kurs razmjene %s od %s: ", string(Currency.Code), string(sep.EUR)))
 		float64Value, err := strconv.ParseFloat(stringValue, 64)
 		if err != nil {
 			return err
@@ -233,7 +233,7 @@ func Generate(params *Params) error {
 		UPB := scan("Jedinična cijena prije dodavanja PDV-a: ")
 		VR := scan("Stopa PDV-a: ")
 		R := scan("Procenat rabata: ")
-		EX := ""
+		EX := sep.ExemptFromVATType("")
 		stringValue = scan("Izuzeće od plaćanja PDV-a (da ili ne): ")
 		if strings.Compare(stringValue, "da") == 0 {
 			fmt.Println("Izaberite član za izuzeće od plaćanja PDV-a:")
@@ -244,7 +244,29 @@ func Generate(params *Params) error {
 			fmt.Println("[5] Oslobođenja kod uvoza proizvoda (Član 28)")
 			fmt.Println("[6] Oslobođenja kod privremenog uvoza proizvoda (Član 29)")
 			fmt.Println("[7] Posebna oslobođenja (Član 30)")
-			EX = scan("Izuzeće od plaćanja PDV-a: ")
+			stringValue = scan("Izuzeće od plaćanja PDV-a: ")
+			uint64Value, err = strconv.ParseUint(stringValue, 10, 64)
+			if err != nil {
+				return err
+			}
+			switch uint64Value {
+			case 1:
+				EX = sep.CL17
+			case 2:
+				EX = sep.CL20
+			case 3:
+				EX = sep.CL26
+			case 4:
+				EX = sep.CL27
+			case 5:
+				EX = sep.CL28
+			case 6:
+				EX = sep.CL29
+			case 7:
+				EX = sep.CL30
+			default:
+				return fmt.Errorf("invalid EX")
+			}
 		}
 
 		q, err := strconv.ParseFloat(Q, 64)
