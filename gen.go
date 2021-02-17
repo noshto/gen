@@ -17,7 +17,6 @@ import (
 // Params represents collection of parameters needed for Generate function
 type Params struct {
 	SepConfig *sep.Config
-	InFile    string
 	OutFile   string
 }
 
