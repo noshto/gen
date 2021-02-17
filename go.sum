@@ -1,0 +1,14 @@
+github.com/beevik/etree v1.1.0 h1:T0xke/WvNtMoCqgzPhkX2r4rjY3GDZFi+FjpRZY2Jbs=
+github.com/beevik/etree v1.1.0/go.mod h1:r8Aw8JqVegEf0w2fDnATrX9VpkMcyFeM0FhwO62wh+A=
+github.com/google/uuid v1.2.0 h1:qJYtXnJRWmpe7m/3XlyhrsLrEURqHRM2kxzoxXqyUDs=
+github.com/google/uuid v1.2.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
+github.com/noshto/sep v0.0.1 h1:eBrfdmc4y0k3HhZa+x4CA7KIFV0015qCRuOhGkQn3V0=
+github.com/noshto/sep v0.0.1/go.mod h1:o34LxYoCqnrpwjfLkVL+PsET6M6THS2bntmXxtu32a8=
+github.com/noshto/sep v0.0.2 h1:/umP220KxRLayWabIwg3dXJp+euYWoktl/o0ejukQTY=
+github.com/noshto/sep v0.0.2/go.mod h1:o34LxYoCqnrpwjfLkVL+PsET6M6THS2bntmXxtu32a8=
+github.com/noshto/sep v0.0.3 h1:t5YaGV3PDVp0U6zdnRYSMETl3DLYga3LBRj6UEbKS2c=
+github.com/noshto/sep v0.0.3/go.mod h1:o34LxYoCqnrpwjfLkVL+PsET6M6THS2bntmXxtu32a8=
+github.com/noshto/sep v0.0.4 h1:GmqKGbOxoCNlhj3OrSYU4BUpxFF+KbjaCMJTJGMn/t0=
+github.com/noshto/sep v0.0.4/go.mod h1:o34LxYoCqnrpwjfLkVL+PsET6M6THS2bntmXxtu32a8=
+github.com/pkcs12/efi v0.0.5 h1:BtD7wmhmM+LYNG/M5v2Z5njxP0bwMxW1+0NZfKwpLDA=
+github.com/pkcs12/efi v0.0.5/go.mod h1:s1MzDmdxa4nfadZqooai9duNlxb+jX9ciomttv+Vs44=
