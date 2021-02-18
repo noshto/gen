@@ -631,7 +631,7 @@ func GenerateRegisterTCRRequest(params *Params) error {
 }
 
 // GeneratePlainIIC asks user to enter parameters required for generating IIC
-func GeneratePlainIIC() []interface{} {
+func GeneratePlainIIC() [7]string {
 	fmt.Println()
 	fmt.Println("---------------------------------------------------------------")
 	TIN := Scan("Identifikacioni broj prodavca(PIB): ")
@@ -643,5 +643,5 @@ func GeneratePlainIIC() []interface{} {
 	TotPrice := Scan("Ukupna cijena svih stavki uključujući poreze i popuste: ")
 
 	// Orders of parameters: TIN, IssueDateTime, InvOrdNum, BusinUnitCode, TCRCode, SoftCode, TotPrice
-	return []interface{}{TIN, IssueDateTime, InvOrdNum, BusinUnitCode, TCRCode, SoftCode, TotPrice}
+	return [7]string{TIN, IssueDateTime, InvOrdNum, BusinUnitCode, TCRCode, SoftCode, TotPrice}
 }
