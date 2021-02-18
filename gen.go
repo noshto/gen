@@ -531,6 +531,7 @@ func GenerateClient() *sep.Client {
 // GenerateTCR asks user to fill in TCR details
 func GenerateTCR(params *Params) error {
 
+	fmt.Println("---------------------------------------------------------------")
 	fmt.Println("Tip ENU:")
 	fmt.Println("[1] Standardni ENU")
 	fmt.Println("[2] Samonaplatni uređaj (automat)")
@@ -549,13 +550,19 @@ func GenerateTCR(params *Params) error {
 		return fmt.Errorf("invalid TCRType")
 	}
 
+	fmt.Println()
+	fmt.Println("---------------------------------------------------------------")
 	TCRIntID := Scan("Interna identifikacija ENU: ")
 
+	fmt.Println()
+	fmt.Println("---------------------------------------------------------------")
 	stringValue = Scan("Datum od kojeg će se koristiti ENU (u formati yyyy-MM-dd): ")
 	ValidFrom, err := time.Parse("2006-01-02", stringValue)
 	if err != nil {
 		return err
 	}
+	fmt.Println()
+	fmt.Println("---------------------------------------------------------------")
 	stringValue = Scan("Datum do kojeg će se koristiti ENU. (u formati yyyy-MM-dd): ")
 	ValidTo, err := time.Parse("2006-01-02", stringValue)
 	if err != nil {
