@@ -25,6 +25,7 @@ func Generate(params *Params) (string, error) {
 
 	// Type Of Invoice
 	TypeOfInv := sep.NONCASH
+	fmt.Println()
 	fmt.Println("---------------------------------------------------------------")
 	fmt.Println("Izaberite Vrstu računa:")
 	fmt.Println("[1] Gotovinski (CASH)")
@@ -530,7 +531,7 @@ func GenerateClient() *sep.Client {
 
 // GenerateTCR asks user to fill in TCR details
 func GenerateTCR(params *Params) error {
-
+	fmt.Println()
 	fmt.Println("---------------------------------------------------------------")
 	fmt.Println("Tip ENU:")
 	fmt.Println("[1] Standardni ENU")
