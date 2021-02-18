@@ -634,13 +634,13 @@ func GenerateRegisterTCRRequest(params *Params) error {
 func GeneratePlainIIC() []interface{} {
 	fmt.Println()
 	fmt.Println("---------------------------------------------------------------")
-	IssueDateTime := Scan("Datum i vrijeme kada je račun kreiran i izdat od strane ENU.:")
-	InvOrdNum := Scan("Redni broj računa: ")
-	TotPrice := Scan("Ukupna cijena svih stavki uključujući poreze i popuste: ")
-	BusinUnitCode := Scan("Kôd poslovne jedinice (prostora): ")
-	SoftCode := Scan("Kôd softvera: ")
-	TCRCode := Scan("Kôd elektronskog naplatnog uređaja: ")
 	TIN := Scan("Identifikacioni broj prodavca(PIB): ")
+	IssueDateTime := Scan("Datum i vrijeme kada je račun kreiran i izdat od strane ENU.: ")
+	InvOrdNum := Scan("Redni broj računa: ")
+	BusinUnitCode := Scan("Kôd poslovne jedinice (prostora): ")
+	TCRCode := Scan("Kôd elektronskog naplatnog uređaja: ")
+	SoftCode := Scan("Kôd softvera: ")
+	TotPrice := Scan("Ukupna cijena svih stavki uključujući poreze i popuste: ")
 
 	// Orders of parameters: TIN, IssueDateTime, InvOrdNum, BusinUnitCode, TCRCode, SoftCode, TotPrice
 	return []interface{}{TIN, IssueDateTime, InvOrdNum, BusinUnitCode, TCRCode, SoftCode, TotPrice}
