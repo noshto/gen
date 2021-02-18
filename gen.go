@@ -515,3 +515,109 @@ func Scan(message string) string {
 	value = scanner.Text()
 	return value
 }
+
+// GenerateClient asks user to fill in new client details
+func GenerateClient() *sep.Client {
+	return &sep.Client{
+		Name:    Scan("Ime: "),
+		TIN:     Scan("Identifikacioni broj (PIB): "),
+		VAT:     Scan("PDV broj (PDV): "),
+		Address: Scan("Adresa: "),
+		Town:    Scan("Grad: "),
+		Country: Scan("Država (MNE, USA, itd.): "),
+	}
+}
+
+// GenerateTCR asks user to fill in TCR details
+func GenerateTCR(params *Params) error {
+
+	fmt.Println("Tip ENU:")
+	fmt.Println("[1] Standardni ENU")
+	fmt.Println("[2] Samonaplatni uređaj (automat)")
+	stringValue := Scan("Tip ENU: ")
+	uint64Value, err := strconv.ParseUint(stringValue, 10, 64)
+	if err != nil {
+		return err
+	}
+	TCRType := sep.REGULAR
+	switch uint64Value {
+	case 1:
+		TCRType = sep.REGULAR
+	case 2:
+		TCRType = sep.VENDING
+	default:
+		return fmt.Errorf("invalid TCRType")
+	}
+
+	TCRIntID := Scan("Interna identifikacija ENU: ")
+
+	stringValue = Scan("Datum od kojeg će se koristiti ENU (u formati yyyy-MM-dd): ")
+	ValidFrom, err := time.Parse("2016-01-02", stringValue)
+	if err != nil {
+		return err
+	}
+	stringValue = Scan("Datum do kojeg će se koristiti ENU. (u formati yyyy-MM-dd): ")
+	ValidTo, err := time.Parse("2016-01-02", stringValue)
+	if err != nil {
+		return err
+	}
+
+	TCR := sep.TCR{
+		Type:           TCRType,
+		ValidFrom:      sep.Date(ValidFrom),
+		ValidTo:        sep.Date(ValidTo),
+		TCRIntID:       sep.TCRIntID(TCRIntID),
+		IssuerTIN:      sep.TIN(params.SepConfig.TIN),
+		SoftCode:       sep.SoftCode(params.SepConfig.SoftCode),
+		MaintainerCode: sep.MaintainerCode(params.SepConfig.MaintainerCode),
+		BusinUnitCode:  sep.BusinUnitCode(params.SepConfig.BusinUnitCode),
+	}
+
+	RegisterTCRRequest := sep.RegisterTCRRequest{
+		ID:      "Request",
+		Version: "1",
+		Header: sep.Header{
+			UUID:         uuid.New().String(),
+			SendDateTime: sep.DateTime(time.Now()),
+		},
+		TCR: TCR,
+		Signature: sep.Signature{
+			SignedInfo: sep.SignedInfo{
+				CanonicalizationMethod: sep.CanonicalizationMethod{
+					Algorithm: "http://www.w3.org/2001/10/xml-exc-c14n#",
+				},
+				SignatureMethod: sep.SignatureMethod{
+					Algorithm: "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256",
+				},
+				Reference: sep.Reference{
+					URI: "#Request",
+					Transforms: []sep.Transform{
+						{Algorithm: "http://www.w3.org/2000/09/xmldsig#enveloped-signature"},
+						{Algorithm: "http://www.w3.org/2001/10/xml-exc-c14n#"},
+					},
+					DigestMethod: sep.DigestMethod{
+						Algorithm: "http://www.w3.org/2001/04/xmlenc#sha256",
+					},
+				},
+			},
+		},
+	}
+
+	buf, err := xml.Marshal(RegisterTCRRequest)
+	if err != nil {
+		return nil
+	}
+
+	doc := etree.NewDocument()
+	err = doc.ReadFromBytes(buf)
+	if err != nil {
+		return nil
+	}
+
+	doc, err = Envelope(doc)
+	if err != nil {
+		return nil
+	}
+
+	return doc.WriteToFile(params.OutFile)
+}
