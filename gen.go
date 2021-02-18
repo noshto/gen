@@ -221,7 +221,7 @@ func GenerateRegisterInvoiceRequest(params *Params) (string, error) {
 	fmt.Println("---------------------------------------------------------------")
 	CurrencyCode := Scan("Valuta (EUR, USD, RUB, GBP, itd.): ")
 	if strings.Compare(CurrencyCode, string(sep.EUR)) != 0 {
-		stringValue = Scan(fmt.Sprintf("[5] Kurs razmjene %s od %s: ", string(Currency.Code), string(sep.EUR)))
+		stringValue = Scan(fmt.Sprintf("[5] Kurs razmjene %s od %s: ", string(CurrencyCode), string(sep.EUR)))
 		float64Value, err := strconv.ParseFloat(stringValue, 64)
 		if err != nil {
 			return "", err
