@@ -430,7 +430,6 @@ func Generate(params *Params) error {
 		Buyer:           Buyer,
 		Items:           &Items,
 		SameTaxes:       &SameTaxes,
-		InternalOrdNum:  InternalOrdNum,
 	}
 
 	// Generate RegisterInvoiceRequest
@@ -480,6 +479,10 @@ func Generate(params *Params) error {
 	if err != nil {
 		return nil
 	}
+
+	// TODO: use it
+	_ = InternalOrdNum
+
 	return doc.WriteToFile(params.OutFile)
 }
 
