@@ -29,7 +29,7 @@ func Generate(params *Params) (string, error) {
 	fmt.Println("Izaberite Vrstu računa:")
 	fmt.Println("[1] Gotovinski (CASH)")
 	fmt.Println("[2] Bezgotovinski (NONCASH)")
-	stringValue := scan("Vrsta računa: ")
+	stringValue := Scan("Vrsta računa: ")
 	uint64Value, err := strconv.ParseUint(stringValue, 10, 64)
 	if err != nil {
 		return "", err
@@ -53,7 +53,7 @@ func Generate(params *Params) (string, error) {
 		fmt.Println("[2] Kreditna i debitna kartica banke izdata fizičkom licu (CARD)")
 		fmt.Println("[3] Račun još nije plaćen. Biće plaćen zbirnim računom (ORDER)")
 		fmt.Println("[4] Ostala gotovinska plaćanja (OTHER-CASH)")
-		stringValue = scan("Način plaćanja: ")
+		stringValue = Scan("Način plaćanja: ")
 		uint64Value, err = strconv.ParseUint(stringValue, 10, 64)
 		if err != nil {
 			return "", err
@@ -79,7 +79,7 @@ func Generate(params *Params) (string, error) {
 		fmt.Println("[6] Transakcioni račun (virman) (ACCOUNT)")
 		fmt.Println("[7] Faktoring (FACTORING)")
 		fmt.Println("[8] Ostala bezgotovinska plaćanja (OTHER)")
-		stringValue = scan("Način plaćanja: ")
+		stringValue = Scan("Način plaćanja: ")
 		uint64Value, err = strconv.ParseUint(stringValue, 10, 64)
 		if err != nil {
 			return "", err
@@ -113,7 +113,7 @@ func Generate(params *Params) (string, error) {
 	fmt.Println("Naknadno dostavljanje:")
 	fmt.Println("[1] Da")
 	fmt.Println("[2] Ne")
-	stringValue = scan("Naknadno dostavljanje: ")
+	stringValue = Scan("Naknadno dostavljanje: ")
 	uint64Value, err = strconv.ParseUint(stringValue, 10, 64)
 	if err != nil {
 		return "", err
@@ -125,7 +125,7 @@ func Generate(params *Params) (string, error) {
 		fmt.Println("[3] Problem sa fiskalnim servisom (SERVICE)")
 		fmt.Println("[4] Tehnička greška (TECHNICALERROR)")
 		fmt.Println("[5] Naknadno slanje uslovljeno načinom poslovanja (BUSINESSNEED)")
-		stringValue = scan("Tip naknadne dostave: ")
+		stringValue = Scan("Tip naknadne dostave: ")
 		uint64Value, err = strconv.ParseUint(stringValue, 10, 64)
 		if err != nil {
 			return "", err
@@ -149,7 +149,7 @@ func Generate(params *Params) (string, error) {
 	// Invoice Ordinal Number
 	fmt.Println()
 	fmt.Println("---------------------------------------------------------------")
-	stringValue = scan("Redni broj računa: ")
+	stringValue = Scan("Redni broj računa: ")
 	InvOrdNum, err := strconv.ParseUint(stringValue, 10, 64)
 	if err != nil {
 		return "", err
@@ -157,7 +157,7 @@ func Generate(params *Params) (string, error) {
 	// Internal Order Number
 	fmt.Println()
 	fmt.Println("---------------------------------------------------------------")
-	InternalOrdNum := scan("Interni broj računa (ostavite prazno ako ne postoji): ")
+	InternalOrdNum := Scan("Interni broj računa (ostavite prazno ako ne postoji): ")
 
 	// Seller
 	Seller := &sep.Seller{
@@ -173,7 +173,7 @@ func Generate(params *Params) (string, error) {
 	var Buyer *sep.Buyer
 	fmt.Println()
 	fmt.Println("---------------------------------------------------------------")
-	stringValue = scan("Ime ili PIB kupca: ")
+	stringValue = Scan("Ime ili PIB kupca: ")
 	for _, it := range params.SepConfig.Clients {
 		if strings.Contains(it.Name, stringValue) {
 			Buyer = &sep.Buyer{
@@ -203,11 +203,11 @@ func Generate(params *Params) (string, error) {
 		fmt.Println("Kupac ne postoji, molim upišite sledeči podatke:")
 		Buyer = &sep.Buyer{
 			IDType:  sep.IDTypeTIN,
-			IDNum:   scan(" - Identifikacioni broj kupca (PIB): "),
-			Name:    scan(" - Ime kupca: "),
-			Address: scan(" - Adresa kupca: "),
-			Town:    scan(" - Grad kupca: "),
-			Country: scan(" - Država kupca (MNE, USA, itd.): "),
+			IDNum:   Scan(" - Identifikacioni broj kupca (PIB): "),
+			Name:    Scan(" - Ime kupca: "),
+			Address: Scan(" - Adresa kupca: "),
+			Town:    Scan(" - Grad kupca: "),
+			Country: Scan(" - Država kupca (MNE, USA, itd.): "),
 		}
 	}
 
@@ -218,9 +218,9 @@ func Generate(params *Params) (string, error) {
 	}
 	fmt.Println()
 	fmt.Println("---------------------------------------------------------------")
-	CurrencyCode := scan("Valuta (EUR, USD, RUB, GBP, itd.): ")
+	CurrencyCode := Scan("Valuta (EUR, USD, RUB, GBP, itd.): ")
 	if strings.Compare(CurrencyCode, string(sep.EUR)) != 0 {
-		stringValue = scan(fmt.Sprintf("[5] Kurs razmjene %s od %s: ", string(Currency.Code), string(sep.EUR)))
+		stringValue = Scan(fmt.Sprintf("[5] Kurs razmjene %s od %s: ", string(Currency.Code), string(sep.EUR)))
 		float64Value, err := strconv.ParseFloat(stringValue, 64)
 		if err != nil {
 			return "", err
@@ -231,7 +231,7 @@ func Generate(params *Params) (string, error) {
 
 	fmt.Println()
 	fmt.Println("---------------------------------------------------------------")
-	stringValue = scan("Količina stavke: ")
+	stringValue = Scan("Količina stavke: ")
 	NumOfItems, err := strconv.Atoi(stringValue)
 	if err != nil {
 		return "", err
@@ -253,29 +253,29 @@ func Generate(params *Params) (string, error) {
 		fmt.Println()
 		fmt.Println("---------------------------------------------------------------")
 		fmt.Printf("Stavka #%d:\n", i+1)
-		N := scan("Naziv stavke (roba ili usluge): ")
+		N := Scan("Naziv stavke (roba ili usluge): ")
 		fmt.Println()
 		fmt.Println("---------------------------------------------------------------")
-		U := scan("Jedinica mjere (komad, jedinica za mjerenje težine, jedinica za mjerenje dužine, itd.): ")
+		U := Scan("Jedinica mjere (komad, jedinica za mjerenje težine, jedinica za mjerenje dužine, itd.): ")
 		fmt.Println()
 		fmt.Println("---------------------------------------------------------------")
-		Q := scan("Količina ili broj stavki: ")
+		Q := Scan("Količina ili broj stavki: ")
 		fmt.Println()
 		fmt.Println("---------------------------------------------------------------")
-		UPB := scan("Jedinična cijena prije dodavanja PDV-a: ")
+		UPB := Scan("Jedinična cijena prije dodavanja PDV-a: ")
 		fmt.Println()
 		fmt.Println("---------------------------------------------------------------")
-		VR := scan("Stopa PDV-a: ")
+		VR := Scan("Stopa PDV-a: ")
 		fmt.Println()
 		fmt.Println("---------------------------------------------------------------")
-		R := scan("Procenat rabata: ")
+		R := Scan("Procenat rabata: ")
 		EX := sep.ExemptFromVATType("")
 		fmt.Println()
 		fmt.Println("---------------------------------------------------------------")
 		fmt.Println("Izuzeće od plaćanja PDV-a:")
 		fmt.Println("[1] Da")
 		fmt.Println("[2] Ne")
-		stringValue = scan("Izuzeće od plaćanja PDV-a: ")
+		stringValue = Scan("Izuzeće od plaćanja PDV-a: ")
 		uint64Value, err = strconv.ParseUint(stringValue, 10, 64)
 		if err != nil {
 			return "", err
@@ -289,7 +289,7 @@ func Generate(params *Params) (string, error) {
 			fmt.Println("[5] Oslobođenja kod uvoza proizvoda (Član 28)")
 			fmt.Println("[6] Oslobođenja kod privremenog uvoza proizvoda (Član 29)")
 			fmt.Println("[7] Posebna oslobođenja (Član 30)")
-			stringValue = scan("Izuzeće od plaćanja PDV-a: ")
+			stringValue = Scan("Izuzeće od plaćanja PDV-a: ")
 			uint64Value, err = strconv.ParseUint(stringValue, 10, 64)
 			if err != nil {
 				return "", err
@@ -505,8 +505,8 @@ func Envelope(req *etree.Document) (*etree.Document, error) {
 	return doc, nil
 }
 
-// helper for reading user input
-func scan(message string) string {
+// Scan helper for reading user input
+func Scan(message string) string {
 	fmt.Print(message)
 	var value string
 
