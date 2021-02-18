@@ -20,8 +20,8 @@ type Params struct {
 	OutFile   string
 }
 
-// Generate generates REgisterInvoiceRequest in a quiz mode
-func Generate(params *Params) (string, error) {
+// GenerateRegisterInvoiceRequest generates RegisterInvoiceRequest in a quiz mode
+func GenerateRegisterInvoiceRequest(params *Params) (string, error) {
 
 	// Type Of Invoice
 	TypeOfInv := sep.NONCASH
@@ -529,8 +529,8 @@ func GenerateClient() *sep.Client {
 	}
 }
 
-// GenerateTCR asks user to fill in TCR details
-func GenerateTCR(params *Params) error {
+// GenerateRegisterTCRRequest asks user to fill in TCR details
+func GenerateRegisterTCRRequest(params *Params) error {
 	fmt.Println()
 	fmt.Println("---------------------------------------------------------------")
 	fmt.Println("Tip ENU:")
@@ -628,4 +628,20 @@ func GenerateTCR(params *Params) error {
 	}
 
 	return doc.WriteToFile(params.OutFile)
+}
+
+// GeneratePlainIIC asks user to enter parameters required for generating IIC
+func GeneratePlainIIC() []interface{} {
+	fmt.Println()
+	fmt.Println("---------------------------------------------------------------")
+	IssueDateTime := Scan("Datum i vrijeme kada je račun kreiran i izdat od strane ENU.:")
+	InvOrdNum := Scan("Redni broj računa: ")
+	TotPrice := Scan("Ukupna cijena svih stavki uključujući poreze i popuste: ")
+	BusinUnitCode := Scan("Kôd poslovne jedinice (prostora): ")
+	SoftCode := Scan("Kôd softvera: ")
+	TCRCode := Scan("Kôd elektronskog naplatnog uređaja: ")
+	TIN := Scan("Identifikacioni broj prodavca(PIB): ")
+
+	// Orders of parameters: TIN, IssueDateTime, InvOrdNum, BusinUnitCode, TCRCode, SoftCode, TotPrice
+	return []interface{}{TIN, IssueDateTime, InvOrdNum, BusinUnitCode, TCRCode, SoftCode, TotPrice}
 }
