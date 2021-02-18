@@ -465,7 +465,13 @@ func GenerateRegisterInvoiceRequest(params *Params) (string, error) {
 		},
 	}
 
-	buf, err := xml.Marshal(RegisterInvoiceRequest)
+	RegisterInvoiceRequestEnvelope := sep.RegisterInvoiceRequestEnvelope{
+		Body: sep.Body{
+			RegisterInvoiceRequest: *RegisterInvoiceRequest,
+		},
+	}
+
+	buf, err := xml.Marshal(RegisterInvoiceRequestEnvelope)
 	if err != nil {
 		return "", nil
 	}
@@ -475,11 +481,13 @@ func GenerateRegisterInvoiceRequest(params *Params) (string, error) {
 	if err != nil {
 		return "", nil
 	}
+	doc.IndentTabs()
+	doc.Root().SetTail("")
 
-	doc, err = Envelope(doc)
-	if err != nil {
-		return "", nil
-	}
+	// doc, err = Envelope(doc)
+	// if err != nil {
+	// 	return "", nil
+	// }
 
 	return InternalOrdNum, doc.WriteToFile(params.OutFile)
 }
