@@ -181,12 +181,26 @@ func Generate(params *Params) error {
 	fmt.Println()
 	fmt.Println("---------------------------------------------------------------")
 	stringValue = scan("Ime ili PIB kupca: ")
-	for _, it := range params.SepConfig.Buyers {
+	for _, it := range params.SepConfig.Clients {
 		if strings.Contains(it.Name, stringValue) {
-			Buyer = &it
+			Buyer = &sep.Buyer{
+				IDType:  sep.IDTypeTIN,
+				IDNum:   it.TIN,
+				Name:    it.Name,
+				Address: it.Address,
+				Town:    it.Town,
+				Country: it.Country,
+			}
 			break
-		} else if strings.Contains(it.IDNum, stringValue) {
-			Buyer = &it
+		} else if strings.Contains(it.TIN, stringValue) {
+			Buyer = &sep.Buyer{
+				IDType:  sep.IDTypeTIN,
+				IDNum:   it.TIN,
+				Name:    it.Name,
+				Address: it.Address,
+				Town:    it.Town,
+				Country: it.Country,
+			}
 			break
 		}
 	}
