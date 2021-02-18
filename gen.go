@@ -473,13 +473,13 @@ func GenerateRegisterInvoiceRequest(params *Params) (string, error) {
 
 	buf, err := xml.Marshal(RegisterInvoiceRequestEnvelope)
 	if err != nil {
-		return "", nil
+		return "", err
 	}
 
 	doc := etree.NewDocument()
 	err = doc.ReadFromBytes(buf)
 	if err != nil {
-		return "", nil
+		return "", err
 	}
 	doc.IndentTabs()
 	doc.Root().SetTail("")
