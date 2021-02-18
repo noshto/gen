@@ -262,8 +262,6 @@ func Generate(params *Params) error {
 		fmt.Println()
 		fmt.Println("---------------------------------------------------------------")
 		R := scan("Procenat rabata: ")
-		fmt.Println()
-		fmt.Println("---------------------------------------------------------------")
 		EX := sep.ExemptFromVATType("")
 		fmt.Println()
 		fmt.Println("---------------------------------------------------------------")
