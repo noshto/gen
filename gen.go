@@ -20,22 +20,8 @@ type Params struct {
 	OutFile   string
 }
 
-// PrintUsage prints welcome message
-func PrintUsage() {
-	fmt.Println("--------------------")
-	fmt.Println("Welcome to GEN - simple util that saves you from frustrating process of invoices fiscalization!")
-	fmt.Println("--------------------")
-	fmt.Println("This app is intented to help you with generation of an invoice request that meets efi.tax.gov.me fiscalization service requirements.")
-	fmt.Println("You will be guided through the minimal list of questions sufficient for invoice fiscalization.")
-	fmt.Println()
-	// fmt.Println("Please check the following list of requirements before proceeding:")
-	// fmt.Println("----------------------------------")
-	// fmt.Println("PREDUSLOVI ZA FISKALIZACIJU RAČUNA")
-	// fmt.Println("PREDUSLOVI ZA FISKALIZACIJU RAČUNA")
-}
-
 // Generate generates REgisterInvoiceRequest in a quiz mode
-func Generate(params *Params) error {
+func Generate(params *Params) (string, error) {
 
 	// Type Of Invoice
 	TypeOfInv := sep.NONCASH
@@ -46,7 +32,7 @@ func Generate(params *Params) error {
 	stringValue := scan("Vrsta računa: ")
 	uint64Value, err := strconv.ParseUint(stringValue, 10, 64)
 	if err != nil {
-		return err
+		return "", err
 	}
 	switch uint64Value {
 	case 1:
@@ -54,7 +40,7 @@ func Generate(params *Params) error {
 	case 2:
 		TypeOfInv = sep.NONCASH
 	default:
-		return fmt.Errorf("invalid TypeOfInv")
+		return "", fmt.Errorf("invalid TypeOfInv")
 	}
 
 	PayMethodType := sep.ACCOUNT
@@ -70,7 +56,7 @@ func Generate(params *Params) error {
 		stringValue = scan("Način plaćanja: ")
 		uint64Value, err = strconv.ParseUint(stringValue, 10, 64)
 		if err != nil {
-			return err
+			return "", err
 		}
 		switch uint64Value {
 		case 1:
@@ -82,7 +68,7 @@ func Generate(params *Params) error {
 		case 4:
 			PayMethodType = sep.OTHER_CASH
 		default:
-			return fmt.Errorf("invalid PayMethodType")
+			return "", fmt.Errorf("invalid PayMethodType")
 		}
 	case sep.NONCASH:
 		fmt.Println("[1] Kreditna i debitna kartica banke izdata poreskom obvezniku (BUSINESSCARD)")
@@ -96,7 +82,7 @@ func Generate(params *Params) error {
 		stringValue = scan("Način plaćanja: ")
 		uint64Value, err = strconv.ParseUint(stringValue, 10, 64)
 		if err != nil {
-			return err
+			return "", err
 		}
 		switch uint64Value {
 		case 1:
@@ -116,7 +102,7 @@ func Generate(params *Params) error {
 		case 8:
 			PayMethodType = sep.OTHER
 		default:
-			return fmt.Errorf("invalid PayMethodType")
+			return "", fmt.Errorf("invalid PayMethodType")
 		}
 	}
 
@@ -124,8 +110,15 @@ func Generate(params *Params) error {
 	SubseqDelivType := sep.SubseqDelivType("")
 	fmt.Println()
 	fmt.Println("---------------------------------------------------------------")
-	stringValue = scan("Naknadno dostavljanje (da ili ne): ")
-	if strings.Compare(stringValue, "da") == 0 {
+	fmt.Println("Naknadno dostavljanje:")
+	fmt.Println("[1] Da")
+	fmt.Println("[2] Ne")
+	stringValue = scan("Naknadno dostavljanje: ")
+	uint64Value, err = strconv.ParseUint(stringValue, 10, 64)
+	if err != nil {
+		return "", err
+	}
+	if uint64Value == 1 {
 		fmt.Println("Izaberite tip naknadne dostave:")
 		fmt.Println("[1] Ako ENU djeluje u području bez interneta (NOINTERNET)")
 		fmt.Println("[2] ENU ne radi i ne može se kreirati poruka (BOUNDBOOK)")
@@ -135,7 +128,7 @@ func Generate(params *Params) error {
 		stringValue = scan("Tip naknadne dostave: ")
 		uint64Value, err = strconv.ParseUint(stringValue, 10, 64)
 		if err != nil {
-			return err
+			return "", err
 		}
 		switch uint64Value {
 		case 1:
@@ -149,7 +142,7 @@ func Generate(params *Params) error {
 		case 5:
 			SubseqDelivType = sep.BUSINESSNEED
 		default:
-			return fmt.Errorf("invalid SubseqDelivType")
+			return "", fmt.Errorf("invalid SubseqDelivType")
 		}
 	}
 
@@ -159,7 +152,7 @@ func Generate(params *Params) error {
 	stringValue = scan("Redni broj računa: ")
 	InvOrdNum, err := strconv.ParseUint(stringValue, 10, 64)
 	if err != nil {
-		return err
+		return "", err
 	}
 	// Internal Order Number
 	fmt.Println()
@@ -230,7 +223,7 @@ func Generate(params *Params) error {
 		stringValue = scan(fmt.Sprintf("[5] Kurs razmjene %s od %s: ", string(Currency.Code), string(sep.EUR)))
 		float64Value, err := strconv.ParseFloat(stringValue, 64)
 		if err != nil {
-			return err
+			return "", err
 		}
 		Currency.Code = sep.CurrencyCodeType(CurrencyCode)
 		Currency.ExRate = float64Value
@@ -241,11 +234,11 @@ func Generate(params *Params) error {
 	stringValue = scan("Količina stavke: ")
 	NumOfItems, err := strconv.Atoi(stringValue)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	if NumOfItems <= 0 {
-		return fmt.Errorf("number of items should be greater than 0")
+		return "", fmt.Errorf("number of items should be greater than 0")
 	}
 
 	// Calculating the following values while fillign in Invoice.Items
@@ -279,8 +272,15 @@ func Generate(params *Params) error {
 		EX := sep.ExemptFromVATType("")
 		fmt.Println()
 		fmt.Println("---------------------------------------------------------------")
-		stringValue = scan("Izuzeće od plaćanja PDV-a (da ili ne): ")
-		if strings.Compare(stringValue, "da") == 0 {
+		fmt.Println("Izuzeće od plaćanja PDV-a:")
+		fmt.Println("[1] Da")
+		fmt.Println("[2] Ne")
+		stringValue = scan("Izuzeće od plaćanja PDV-a: ")
+		uint64Value, err = strconv.ParseUint(stringValue, 10, 64)
+		if err != nil {
+			return "", err
+		}
+		if uint64Value == 1 {
 			fmt.Println("Izaberite član za izuzeće od plaćanja PDV-a:")
 			fmt.Println("[1] Mjesto prometa usluga (Član 17)")
 			fmt.Println("[2] Poreska osnovica i ispravka poreske osnovice (Član 20)")
@@ -292,7 +292,7 @@ func Generate(params *Params) error {
 			stringValue = scan("Izuzeće od plaćanja PDV-a: ")
 			uint64Value, err = strconv.ParseUint(stringValue, 10, 64)
 			if err != nil {
-				return err
+				return "", err
 			}
 			switch uint64Value {
 			case 1:
@@ -310,25 +310,25 @@ func Generate(params *Params) error {
 			case 7:
 				EX = sep.CL30
 			default:
-				return fmt.Errorf("invalid EX")
+				return "", fmt.Errorf("invalid EX")
 			}
 		}
 
 		q, err := strconv.ParseFloat(Q, 64)
 		if err != nil {
-			return err
+			return "", err
 		}
 		upb, err := strconv.ParseFloat(UPB, 64)
 		if err != nil {
-			return err
+			return "", err
 		}
 		vr, err := strconv.ParseFloat(VR, 64)
 		if err != nil {
-			return err
+			return "", err
 		}
 		r, err := strconv.ParseFloat(R, 64)
 		if err != nil {
-			return err
+			return "", err
 		}
 
 		// Calculations
@@ -466,24 +466,21 @@ func Generate(params *Params) error {
 
 	buf, err := xml.Marshal(RegisterInvoiceRequest)
 	if err != nil {
-		return nil
+		return "", nil
 	}
 
 	doc := etree.NewDocument()
 	err = doc.ReadFromBytes(buf)
 	if err != nil {
-		return nil
+		return "", nil
 	}
 
 	doc, err = Envelope(doc)
 	if err != nil {
-		return nil
+		return "", nil
 	}
 
-	// TODO: use it
-	_ = InternalOrdNum
-
-	return doc.WriteToFile(params.OutFile)
+	return InternalOrdNum, doc.WriteToFile(params.OutFile)
 }
 
 // Envelope wraps up given RegisterInvoiceRequest into standard SOAP Envelope
