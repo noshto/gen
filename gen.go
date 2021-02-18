@@ -552,12 +552,12 @@ func GenerateTCR(params *Params) error {
 	TCRIntID := Scan("Interna identifikacija ENU: ")
 
 	stringValue = Scan("Datum od kojeg će se koristiti ENU (u formati yyyy-MM-dd): ")
-	ValidFrom, err := time.Parse("2016-02-01", stringValue)
+	ValidFrom, err := time.Parse("2006-01-02", stringValue)
 	if err != nil {
 		return err
 	}
 	stringValue = Scan("Datum do kojeg će se koristiti ENU. (u formati yyyy-MM-dd): ")
-	ValidTo, err := time.Parse("2016-02-01", stringValue)
+	ValidTo, err := time.Parse("2006-01-02", stringValue)
 	if err != nil {
 		return err
 	}
