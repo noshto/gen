@@ -645,3 +645,136 @@ func GeneratePlainIIC() [7]string {
 	// Orders of parameters: TIN, IssueDateTime, InvOrdNum, BusinUnitCode, TCRCode, SoftCode, TotPrice
 	return [7]string{TIN, IssueDateTime, InvOrdNum, BusinUnitCode, TCRCode, SoftCode, TotPrice}
 }
+
+// PrintInvoiceDetails prints out invoice details
+func PrintInvoiceDetails(inFile string, SepConfig *sep.Config, InternalOrdNum string) error {
+
+	doc := etree.NewDocument()
+	if err := doc.ReadFromFile(inFile); err != nil {
+		return err
+	}
+	elem := doc.FindElement("//RegisterInvoiceRequest")
+	if elem == nil {
+		return fmt.Errorf("invalid xml, no RegisterInvoiceRequest")
+	}
+	reqDoc := etree.NewDocument()
+	reqDoc.SetRoot(elem.Copy())
+	buf, err := reqDoc.WriteToBytes()
+	if err != nil {
+		return err
+	}
+	req := sep.RegisterInvoiceRequest{}
+	if err := xml.Unmarshal(buf, &req); err != nil {
+		return err
+	}
+
+	fmt.Println("---------------------------------------------------------------")
+	fmt.Println("PRODAVAC")
+	fmt.Printf("\t%s\n", req.Invoice.Seller.Name)
+	fmt.Printf("\t%s\n", req.Invoice.Seller.Address)
+	fmt.Printf("\tTel: %s\tFax: %s\n", SepConfig.Phone, SepConfig.Fax)
+	fmt.Printf("\tPIB: %s\t\tPDV: %s\n", SepConfig.TIN, SepConfig.VAT)
+	fmt.Printf("\tZ.R.: %s\n", SepConfig.BankAccount)
+	fmt.Println("---------------------------------------------------------------")
+
+	client := &sep.Client{}
+	for _, it := range SepConfig.Clients {
+		if it.TIN == req.Invoice.Buyer.IDNum {
+			client = &it
+			break
+		}
+	}
+	fmt.Println("KUPAC")
+	fmt.Printf("\t%s\n", req.Invoice.Buyer.Name)
+	fmt.Printf("\t%s\n", req.Invoice.Buyer.Address)
+	fmt.Printf("\tPIB: %s\t\tPDV: %s\n", req.Invoice.Buyer.IDNum, client.VAT)
+	fmt.Println("---------------------------------------------------------------")
+
+	fmt.Println("RACUN")
+	fmt.Printf("\tDATUM: %s\n", time.Time(req.Invoice.IssueDateTime).Format("2006-01-02"))
+	fmt.Printf("\tRACUN br.: %s\n", req.Invoice.InvNum)
+	fmt.Printf("\tINTERNI br.: %s\n", InternalOrdNum)
+	fmt.Println("---------------------------------------------------------------")
+
+	fmt.Println("STAVKE")
+	fmt.Println("Rb\tNAZIV PROIZVODA/USLUGE\tJM\tKolicina\tCijena bez PDV\tVrijednost bez PDV\tRabat\tPDV Stopa\tPDV Iznos\tCijena sa PDV\tVrijednost sa PDV")
+	for in, it := range *req.Invoice.Items {
+
+		q := float64(it.Q)
+		upb := float64(it.UPB)
+		vr := float64(it.VR)
+		r := float64(it.R)
+
+		// Calculations
+		// upbr is for "Unit Price Before VAT, Rabat applied"
+		upbr := (upb - upb*(r/100))
+		// pb is for "Price Before VAT"
+		pb := upbr * q
+
+		// uva is for "Unit VAT Amount, Rabat applied"
+		uva := upbr * (vr / 100)
+		// va is for "VAT Amount"
+		va := uva * q
+
+		// upa is for "Unit Price After VAT, Rabat applied"
+		upa := upbr + uva
+		// pa is for "Price After VAT, Rabat applied"
+		pa := pb + va
+
+		Name := it.N
+		Unit := it.U
+		Quantity := strconv.FormatFloat(float64(it.Q), 'f', 2, 64)
+		UnitPriceBefVAT := strconv.FormatFloat(upb, 'f', 2, 64)
+		PriceBefVAT := strconv.FormatFloat(upb*q, 'f', 2, 64)
+		Rebate := fmt.Sprintf("%d%%", int64(r))
+		VATRate := fmt.Sprintf("%d%%", int64(vr))
+		VATAmount := strconv.FormatFloat(va, 'f', 2, 64)
+		UnitPriceAfterVAT := strconv.FormatFloat(upa, 'f', 2, 64)
+		PriceAfterVAT := strconv.FormatFloat(pa, 'f', 2, 64)
+
+		fmt.Printf(
+			"%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n",
+			strconv.Itoa(in+1),
+			fmt.Sprintf("%.22s", fmt.Sprintf("%-22s", Name)),
+			fmt.Sprintf("%.4s", fmt.Sprintf("%-4s", Unit)),
+			fmt.Sprintf("%.10s", fmt.Sprintf("%-10s", Quantity)),
+			fmt.Sprintf("%.14s", fmt.Sprintf("%-15s", UnitPriceBefVAT)),
+			fmt.Sprintf("%.18s", fmt.Sprintf("%-18s", PriceBefVAT)),
+			fmt.Sprintf("%.6s", fmt.Sprintf("%-6s", Rebate)),
+			fmt.Sprintf("%.9s", fmt.Sprintf("%-9s", VATRate)),
+			fmt.Sprintf("%.9s", fmt.Sprintf("%-9s", VATAmount)),
+			fmt.Sprintf("%.13s", fmt.Sprintf("%-13s", UnitPriceAfterVAT)),
+			fmt.Sprintf("%.17s", fmt.Sprintf("%-17s", PriceAfterVAT)),
+		)
+	}
+	fmt.Println("---------------------------------------------------------------")
+
+	PriceBeforeVAT := float64(0)
+	Rebate := float64(0)
+	VATAmt := float64(0)
+	for _, it := range *req.Invoice.Items {
+		PriceBeforeVAT += float64(it.UPB * it.Q)
+		Rebate += PriceBeforeVAT * (float64(it.R) / 100)
+		VATAmt += (PriceBeforeVAT - Rebate) * (float64(it.VR) / 100)
+	}
+	Base21 := PriceBeforeVAT - Rebate
+	TotPrice := strconv.FormatFloat(float64(req.Invoice.TotPrice), 'f', 2, 64)
+	if Rebate != 0 {
+		Rebate *= -1
+	}
+
+	title := fmt.Sprintf("%.22s", fmt.Sprintf("%-22s", "Vrijednost bez PDV:"))
+	fmt.Printf("%s\t\t%s\n", title, strconv.FormatFloat(PriceBeforeVAT, 'f', 2, 64))
+	title = fmt.Sprintf("%.22s", fmt.Sprintf("%-22s", "Iznos rabata:"))
+	fmt.Printf("%s\t\t%s\n", title, strconv.FormatFloat(Rebate, 'f', 2, 64))
+	fmt.Println("---------------------------------------------------------------")
+	title = fmt.Sprintf("%.22s", fmt.Sprintf("%-22s", "Osnovica za stopu 21%:"))
+	fmt.Printf("%s\t\t%s\n", title, strconv.FormatFloat(Base21, 'f', 2, 64))
+	title = fmt.Sprintf("%.22s", fmt.Sprintf("%-22s", "PDV po stopi 21%:"))
+	fmt.Printf("%s\t\t%s\n", title, strconv.FormatFloat(VATAmt, 'f', 2, 64))
+	fmt.Println("---------------------------------------------------------------")
+	title = fmt.Sprintf("%.22s", fmt.Sprintf("%-22s", "IZNOS ZA UPLATU:"))
+	fmt.Printf("%s\t\t%s\n", title, TotPrice)
+	fmt.Println()
+	return nil
+}
