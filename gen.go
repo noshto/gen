@@ -17,6 +17,7 @@ import (
 // Params represents collection of parameters needed for Generate function
 type Params struct {
 	SepConfig *sep.Config
+	Clients   *[]sep.Client
 	OutFile   string
 }
 
@@ -175,7 +176,7 @@ func GenerateRegisterInvoiceRequest(params *Params) (string, error) {
 	fmt.Println()
 	fmt.Println("---------------------------------------------------------------")
 	stringValue = Scan("Ime ili PIB kupca: ")
-	for _, it := range params.SepConfig.Clients {
+	for _, it := range *params.Clients {
 		if strings.Contains(it.Name, stringValue) {
 			Buyer = &sep.Buyer{
 				IDType:  sep.IDTypeTIN,
@@ -221,7 +222,7 @@ func GenerateRegisterInvoiceRequest(params *Params) (string, error) {
 	fmt.Println("---------------------------------------------------------------")
 	CurrencyCode := Scan("Valuta (EUR, USD, RUB, GBP, itd.): ")
 	if strings.Compare(CurrencyCode, string(sep.EUR)) != 0 {
-		stringValue = Scan(fmt.Sprintf("[5] Kurs razmjene %s od %s: ", string(CurrencyCode), string(sep.EUR)))
+		stringValue = Scan(fmt.Sprintf("Kurs razmjene %s od %s: ", string(CurrencyCode), string(sep.EUR)))
 		float64Value, err := strconv.ParseFloat(stringValue, 64)
 		if err != nil {
 			return "", err
@@ -282,6 +283,7 @@ func GenerateRegisterInvoiceRequest(params *Params) (string, error) {
 			return "", err
 		}
 		if uint64Value == 1 {
+			fmt.Println("---------------------------------------------------------------")
 			fmt.Println("Izaberite član za izuzeće od plaćanja PDV-a:")
 			fmt.Println("[1] Mjesto prometa usluga (Član 17)")
 			fmt.Println("[2] Poreska osnovica i ispravka poreske osnovice (Član 20)")
@@ -403,10 +405,10 @@ func GenerateRegisterInvoiceRequest(params *Params) (string, error) {
 	InvNum := sep.InvNum(
 		fmt.Sprintf(
 			"%s/%d/%d/%s",
-			params.SepConfig.BusinUnitCode,
+			params.SepConfig.TCR.BusinUnitCode,
 			InvOrdNum,
 			IssueDateTime.Year(),
-			params.SepConfig.TCRCode,
+			params.SepConfig.TCR.TCRCode,
 		),
 	)
 
@@ -416,14 +418,14 @@ func GenerateRegisterInvoiceRequest(params *Params) (string, error) {
 		IssueDateTime:   sep.DateTime(IssueDateTime),
 		InvNum:          InvNum,
 		InvOrdNum:       sep.InvOrdNum(InvOrdNum),
-		TCRCode:         sep.TCRCode(params.SepConfig.TCRCode),
+		TCRCode:         sep.TCRCode(params.SepConfig.TCR.TCRCode),
 		IsIssuerInVAT:   IsIssuerInVAT,
 		TotPriceWoVAT:   sep.Amount(TotPriceWoVAT),
 		TotVATAmt:       sep.Amount(TotVATAmt),
 		TotPrice:        sep.Amount(TotPrice),
 		OperatorCode:    sep.OperatorCode(params.SepConfig.OperatorCode),
-		BusinUnitCode:   sep.BusinUnitCode(params.SepConfig.BusinUnitCode),
-		SoftCode:        sep.SoftCode(params.SepConfig.SoftCode),
+		BusinUnitCode:   sep.BusinUnitCode(params.SepConfig.TCR.BusinUnitCode),
+		SoftCode:        sep.SoftCode(params.SepConfig.TCR.SoftCode),
 		IsReverseCharge: false,
 		PayMethods:      PayMethods,
 		Currency:        Currency,
@@ -517,22 +519,11 @@ func Scan(message string) string {
 	return value
 }
 
-// GenerateClient asks user to fill in new client details
-func GenerateClient() *sep.Client {
-	return &sep.Client{
-		Name:    Scan("Ime: "),
-		TIN:     Scan("Identifikacioni broj (PIB): "),
-		VAT:     Scan("PDV broj (PDV): "),
-		Address: Scan("Adresa: "),
-		Town:    Scan("Grad: "),
-		Country: Scan("Država (MNE, USA, itd.): "),
-	}
-}
-
 // GenerateRegisterTCRRequest asks user to fill in TCR details
 func GenerateRegisterTCRRequest(params *Params) error {
 	fmt.Println()
 	fmt.Println("---------------------------------------------------------------")
+	fmt.Println("REGISTRACIJA ENU")
 	fmt.Println("Tip ENU:")
 	fmt.Println("[1] Standardni ENU")
 	fmt.Println("[2] Samonaplatni uređaj (automat)")
@@ -570,15 +561,27 @@ func GenerateRegisterTCRRequest(params *Params) error {
 		return err
 	}
 
+	fmt.Println()
+	fmt.Println("---------------------------------------------------------------")
+	SoftCode := Scan("Kôd softvera: ")
+
+	fmt.Println()
+	fmt.Println("---------------------------------------------------------------")
+	MaintainerCode := Scan("Kôd održavaoca: ")
+
+	fmt.Println()
+	fmt.Println("---------------------------------------------------------------")
+	BusinUnitCode := Scan("Kôd poslovnog prostora: ")
+
 	TCR := sep.TCR{
 		Type:           TCRType,
 		ValidFrom:      sep.Date(ValidFrom),
 		ValidTo:        sep.Date(ValidTo),
 		TCRIntID:       sep.TCRIntID(TCRIntID),
 		IssuerTIN:      sep.TIN(params.SepConfig.TIN),
-		SoftCode:       sep.SoftCode(params.SepConfig.SoftCode),
-		MaintainerCode: sep.MaintainerCode(params.SepConfig.MaintainerCode),
-		BusinUnitCode:  sep.BusinUnitCode(params.SepConfig.BusinUnitCode),
+		SoftCode:       sep.SoftCode(SoftCode),
+		MaintainerCode: sep.MaintainerCode(MaintainerCode),
+		BusinUnitCode:  sep.BusinUnitCode(BusinUnitCode),
 	}
 
 	RegisterTCRRequest := sep.RegisterTCRRequest{
@@ -647,7 +650,7 @@ func GeneratePlainIIC() [7]string {
 }
 
 // PrintInvoiceDetails prints out invoice details
-func PrintInvoiceDetails(inFile string, SepConfig *sep.Config, InternalOrdNum string) error {
+func PrintInvoiceDetails(inFile string, SepConfig *sep.Config, Clients *[]sep.Client, InternalOrdNum string) error {
 
 	doc := etree.NewDocument()
 	if err := doc.ReadFromFile(inFile); err != nil {
@@ -678,7 +681,7 @@ func PrintInvoiceDetails(inFile string, SepConfig *sep.Config, InternalOrdNum st
 	fmt.Println("---------------------------------------------------------------")
 
 	client := &sep.Client{}
-	for _, it := range SepConfig.Clients {
+	for _, it := range *Clients {
 		if it.TIN == req.Invoice.Buyer.IDNum {
 			client = &it
 			break
