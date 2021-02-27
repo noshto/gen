@@ -249,7 +249,7 @@ func GenerateRegisterInvoiceRequest(params *Params) (string, error) {
 		if err != nil {
 			return "", err
 		}
-	
+
 		if NumOfItems <= 0 {
 			return "", fmt.Errorf("number of items should be greater than 0")
 		}
@@ -289,7 +289,7 @@ func GenerateRegisterInvoiceRequest(params *Params) (string, error) {
 				tmp := Scan("Unesite period: ")
 				N = strings.Join([]string{"Izreda zavrsnog racuna za", tmp}, " ")
 			case 4:
-				N = Scan("Naziv stavke (roba ili usluge): ")
+				N = Scan("Unesite naziv stavke: ")
 			default:
 				return "", fmt.Errorf("invalid input")
 			}
@@ -311,7 +311,7 @@ func GenerateRegisterInvoiceRequest(params *Params) (string, error) {
 			fmt.Println("---------------------------------------------------------------")
 			Q = Scan(fmt.Sprintf("Broj %s: ", U))
 		}
-		
+
 		fmt.Println()
 		fmt.Println("---------------------------------------------------------------")
 		UPB := Scan("Jedinična cijena prije dodavanja PDV-a: ")
@@ -320,9 +320,9 @@ func GenerateRegisterInvoiceRequest(params *Params) (string, error) {
 		if !params.Simplified {
 			fmt.Println()
 			fmt.Println("---------------------------------------------------------------")
-			VR = Scan("Stopa PDV-a: ")	
+			VR = Scan("Stopa PDV-a: ")
 		}
-		
+
 		fmt.Println()
 		fmt.Println("---------------------------------------------------------------")
 		R := Scan("Procenat rabata: ")
