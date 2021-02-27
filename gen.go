@@ -240,16 +240,19 @@ func GenerateRegisterInvoiceRequest(params *Params) (string, error) {
 		}
 	}
 
-	fmt.Println()
-	fmt.Println("---------------------------------------------------------------")
-	stringValue = Scan("Količina stavke: ")
-	NumOfItems, err := strconv.Atoi(stringValue)
-	if err != nil {
-		return "", err
-	}
-
-	if NumOfItems <= 0 {
-		return "", fmt.Errorf("number of items should be greater than 0")
+	NumOfItems := 1
+	if !params.Simplified {
+		fmt.Println()
+		fmt.Println("---------------------------------------------------------------")
+		stringValue = Scan("Količina stavke: ")
+		NumOfItems, err := strconv.Atoi(stringValue)
+		if err != nil {
+			return "", err
+		}
+	
+		if NumOfItems <= 0 {
+			return "", fmt.Errorf("number of items should be greater than 0")
+		}
 	}
 
 	// Calculating the following values while fillign in Invoice.Items
