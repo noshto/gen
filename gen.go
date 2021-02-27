@@ -16,9 +16,10 @@ import (
 
 // Params represents collection of parameters needed for Generate function
 type Params struct {
-	SepConfig *sep.Config
-	Clients   *[]sep.Client
-	OutFile   string
+	SepConfig  *sep.Config
+	Clients    *[]sep.Client
+	OutFile    string
+	Simplified bool
 }
 
 // GenerateRegisterInvoiceRequest generates RegisterInvoiceRequest in a quiz mode
@@ -26,132 +27,138 @@ func GenerateRegisterInvoiceRequest(params *Params) (string, error) {
 
 	// Type Of Invoice
 	TypeOfInv := sep.NONCASH
-	fmt.Println()
-	fmt.Println("---------------------------------------------------------------")
-	fmt.Println("Izaberite Vrstu računa:")
-	fmt.Println("[1] Gotovinski (CASH)")
-	fmt.Println("[2] Bezgotovinski (NONCASH)")
-	stringValue := Scan("Vrsta računa: ")
-	uint64Value, err := strconv.ParseUint(stringValue, 10, 64)
-	if err != nil {
-		return "", err
-	}
-	switch uint64Value {
-	case 1:
-		TypeOfInv = sep.CASH
-	case 2:
-		TypeOfInv = sep.NONCASH
-	default:
-		return "", fmt.Errorf("invalid TypeOfInv")
+	if !params.Simplified {
+		fmt.Println()
+		fmt.Println("---------------------------------------------------------------")
+		fmt.Println("Izaberite Vrstu računa:")
+		fmt.Println("[1] Gotovinski (CASH)")
+		fmt.Println("[2] Bezgotovinski (NONCASH)")
+		stringValue := Scan("Vrsta računa: ")
+		uint64Value, err := strconv.ParseUint(stringValue, 10, 64)
+		if err != nil {
+			return "", err
+		}
+		switch uint64Value {
+		case 1:
+			TypeOfInv = sep.CASH
+		case 2:
+			TypeOfInv = sep.NONCASH
+		default:
+			return "", fmt.Errorf("invalid TypeOfInv")
+		}
 	}
 
 	PayMethodType := sep.ACCOUNT
-	fmt.Println()
-	fmt.Println("---------------------------------------------------------------")
-	fmt.Println("Načini plaćanja:")
-	switch TypeOfInv {
-	case sep.CASH:
-		fmt.Println("[1] Novčanice i kovanice (BANKNOTE)")
-		fmt.Println("[2] Kreditna i debitna kartica banke izdata fizičkom licu (CARD)")
-		fmt.Println("[3] Račun još nije plaćen. Biće plaćen zbirnim računom (ORDER)")
-		fmt.Println("[4] Ostala gotovinska plaćanja (OTHER-CASH)")
-		stringValue = Scan("Način plaćanja: ")
-		uint64Value, err = strconv.ParseUint(stringValue, 10, 64)
-		if err != nil {
-			return "", err
-		}
-		switch uint64Value {
-		case 1:
-			PayMethodType = sep.BANKNOTE
-		case 2:
-			PayMethodType = sep.CARD
-		case 3:
-			PayMethodType = sep.ORDER
-		case 4:
-			PayMethodType = sep.OTHER_CASH
-		default:
-			return "", fmt.Errorf("invalid PayMethodType")
-		}
-	case sep.NONCASH:
-		fmt.Println("[1] Kreditna i debitna kartica banke izdata poreskom obvezniku (BUSINESSCARD)")
-		fmt.Println("[2] Jednokratni vaučer (SVOUCHER)")
-		fmt.Println("[3] Kartice izdate od preduzeća prodavca, poklon kartice i slične prepaid kartice (COMPANY)")
-		fmt.Println("[4] Račun još nije plaćen. Biće plaćen zbirnim računom (ORDER)")
-		fmt.Println("[5] Plaćanje avansom (ADVANCE)")
-		fmt.Println("[6] Transakcioni račun (virman) (ACCOUNT)")
-		fmt.Println("[7] Faktoring (FACTORING)")
-		fmt.Println("[8] Ostala bezgotovinska plaćanja (OTHER)")
-		stringValue = Scan("Način plaćanja: ")
-		uint64Value, err = strconv.ParseUint(stringValue, 10, 64)
-		if err != nil {
-			return "", err
-		}
-		switch uint64Value {
-		case 1:
-			PayMethodType = sep.BUSINESSCARD
-		case 2:
-			PayMethodType = sep.SVOUCHER
-		case 3:
-			PayMethodType = sep.COMPANY
-		case 4:
-			PayMethodType = sep.ORDER
-		case 5:
-			PayMethodType = sep.ADVANCE
-		case 6:
-			PayMethodType = sep.ACCOUNT
-		case 7:
-			PayMethodType = sep.FACTORING
-		case 8:
-			PayMethodType = sep.OTHER
-		default:
-			return "", fmt.Errorf("invalid PayMethodType")
+	if !params.Simplified {
+		fmt.Println()
+		fmt.Println("---------------------------------------------------------------")
+		fmt.Println("Načini plaćanja:")
+		switch TypeOfInv {
+		case sep.CASH:
+			fmt.Println("[1] Novčanice i kovanice (BANKNOTE)")
+			fmt.Println("[2] Kreditna i debitna kartica banke izdata fizičkom licu (CARD)")
+			fmt.Println("[3] Račun još nije plaćen. Biće plaćen zbirnim računom (ORDER)")
+			fmt.Println("[4] Ostala gotovinska plaćanja (OTHER-CASH)")
+			stringValue := Scan("Način plaćanja: ")
+			uint64Value, err := strconv.ParseUint(stringValue, 10, 64)
+			if err != nil {
+				return "", err
+			}
+			switch uint64Value {
+			case 1:
+				PayMethodType = sep.BANKNOTE
+			case 2:
+				PayMethodType = sep.CARD
+			case 3:
+				PayMethodType = sep.ORDER
+			case 4:
+				PayMethodType = sep.OTHER_CASH
+			default:
+				return "", fmt.Errorf("invalid PayMethodType")
+			}
+		case sep.NONCASH:
+			fmt.Println("[1] Kreditna i debitna kartica banke izdata poreskom obvezniku (BUSINESSCARD)")
+			fmt.Println("[2] Jednokratni vaučer (SVOUCHER)")
+			fmt.Println("[3] Kartice izdate od preduzeća prodavca, poklon kartice i slične prepaid kartice (COMPANY)")
+			fmt.Println("[4] Račun još nije plaćen. Biće plaćen zbirnim računom (ORDER)")
+			fmt.Println("[5] Plaćanje avansom (ADVANCE)")
+			fmt.Println("[6] Transakcioni račun (virman) (ACCOUNT)")
+			fmt.Println("[7] Faktoring (FACTORING)")
+			fmt.Println("[8] Ostala bezgotovinska plaćanja (OTHER)")
+			stringValue := Scan("Način plaćanja: ")
+			uint64Value, err := strconv.ParseUint(stringValue, 10, 64)
+			if err != nil {
+				return "", err
+			}
+			switch uint64Value {
+			case 1:
+				PayMethodType = sep.BUSINESSCARD
+			case 2:
+				PayMethodType = sep.SVOUCHER
+			case 3:
+				PayMethodType = sep.COMPANY
+			case 4:
+				PayMethodType = sep.ORDER
+			case 5:
+				PayMethodType = sep.ADVANCE
+			case 6:
+				PayMethodType = sep.ACCOUNT
+			case 7:
+				PayMethodType = sep.FACTORING
+			case 8:
+				PayMethodType = sep.OTHER
+			default:
+				return "", fmt.Errorf("invalid PayMethodType")
+			}
 		}
 	}
 
 	// Subsequent Delivery Type
 	SubseqDelivType := sep.SubseqDelivType("")
-	fmt.Println()
-	fmt.Println("---------------------------------------------------------------")
-	fmt.Println("Naknadno dostavljanje:")
-	fmt.Println("[1] Da")
-	fmt.Println("[2] Ne")
-	stringValue = Scan("Naknadno dostavljanje: ")
-	uint64Value, err = strconv.ParseUint(stringValue, 10, 64)
-	if err != nil {
-		return "", err
-	}
-	if uint64Value == 1 {
-		fmt.Println("Izaberite tip naknadne dostave:")
-		fmt.Println("[1] Ako ENU djeluje u području bez interneta (NOINTERNET)")
-		fmt.Println("[2] ENU ne radi i ne može se kreirati poruka (BOUNDBOOK)")
-		fmt.Println("[3] Problem sa fiskalnim servisom (SERVICE)")
-		fmt.Println("[4] Tehnička greška (TECHNICALERROR)")
-		fmt.Println("[5] Naknadno slanje uslovljeno načinom poslovanja (BUSINESSNEED)")
-		stringValue = Scan("Tip naknadne dostave: ")
-		uint64Value, err = strconv.ParseUint(stringValue, 10, 64)
+	if !params.Simplified {
+		fmt.Println()
+		fmt.Println("---------------------------------------------------------------")
+		fmt.Println("Naknadno dostavljanje:")
+		fmt.Println("[1] Da")
+		fmt.Println("[2] Ne")
+		stringValue := Scan("Naknadno dostavljanje: ")
+		uint64Value, err := strconv.ParseUint(stringValue, 10, 64)
 		if err != nil {
 			return "", err
 		}
-		switch uint64Value {
-		case 1:
-			SubseqDelivType = sep.NOINTERNET
-		case 2:
-			SubseqDelivType = sep.BOUNDBOOK
-		case 3:
-			SubseqDelivType = sep.SERVICE
-		case 4:
-			SubseqDelivType = sep.TECHNICALERROR
-		case 5:
-			SubseqDelivType = sep.BUSINESSNEED
-		default:
-			return "", fmt.Errorf("invalid SubseqDelivType")
+		if uint64Value == 1 {
+			fmt.Println("Izaberite tip naknadne dostave:")
+			fmt.Println("[1] Ako ENU djeluje u području bez interneta (NOINTERNET)")
+			fmt.Println("[2] ENU ne radi i ne može se kreirati poruka (BOUNDBOOK)")
+			fmt.Println("[3] Problem sa fiskalnim servisom (SERVICE)")
+			fmt.Println("[4] Tehnička greška (TECHNICALERROR)")
+			fmt.Println("[5] Naknadno slanje uslovljeno načinom poslovanja (BUSINESSNEED)")
+			stringValue = Scan("Tip naknadne dostave: ")
+			uint64Value, err = strconv.ParseUint(stringValue, 10, 64)
+			if err != nil {
+				return "", err
+			}
+			switch uint64Value {
+			case 1:
+				SubseqDelivType = sep.NOINTERNET
+			case 2:
+				SubseqDelivType = sep.BOUNDBOOK
+			case 3:
+				SubseqDelivType = sep.SERVICE
+			case 4:
+				SubseqDelivType = sep.TECHNICALERROR
+			case 5:
+				SubseqDelivType = sep.BUSINESSNEED
+			default:
+				return "", fmt.Errorf("invalid SubseqDelivType")
+			}
 		}
 	}
 
 	// Invoice Ordinal Number
 	fmt.Println()
 	fmt.Println("---------------------------------------------------------------")
-	stringValue = Scan("Redni broj računa: ")
+	stringValue := Scan("Redni broj računa: ")
 	InvOrdNum, err := strconv.ParseUint(stringValue, 10, 64)
 	if err != nil {
 		return "", err
@@ -218,17 +225,19 @@ func GenerateRegisterInvoiceRequest(params *Params) (string, error) {
 		Code:   sep.EUR,
 		ExRate: 1.0,
 	}
-	fmt.Println()
-	fmt.Println("---------------------------------------------------------------")
-	CurrencyCode := Scan("Valuta (EUR, USD, RUB, GBP, itd.): ")
-	if strings.Compare(CurrencyCode, string(sep.EUR)) != 0 {
-		stringValue = Scan(fmt.Sprintf("Kurs razmjene %s od %s: ", string(CurrencyCode), string(sep.EUR)))
-		float64Value, err := strconv.ParseFloat(stringValue, 64)
-		if err != nil {
-			return "", err
+	if !params.Simplified {
+		fmt.Println()
+		fmt.Println("---------------------------------------------------------------")
+		CurrencyCode := Scan("Valuta (EUR, USD, RUB, GBP, itd.): ")
+		if strings.Compare(CurrencyCode, string(sep.EUR)) != 0 {
+			stringValue = Scan(fmt.Sprintf("Kurs razmjene %s od %s: ", string(CurrencyCode), string(sep.EUR)))
+			float64Value, err := strconv.ParseFloat(stringValue, 64)
+			if err != nil {
+				return "", err
+			}
+			Currency.Code = sep.CurrencyCodeType(CurrencyCode)
+			Currency.ExRate = float64Value
 		}
-		Currency.Code = sep.CurrencyCodeType(CurrencyCode)
-		Currency.ExRate = float64Value
 	}
 
 	fmt.Println()
@@ -255,65 +264,112 @@ func GenerateRegisterInvoiceRequest(params *Params) (string, error) {
 		fmt.Println()
 		fmt.Println("---------------------------------------------------------------")
 		fmt.Printf("Stavka #%d:\n", i+1)
-		N := Scan("Naziv stavke (roba ili usluge): ")
-		fmt.Println()
-		fmt.Println("---------------------------------------------------------------")
-		U := Scan("Jedinica mjere (komad, jedinica za mjerenje težine, jedinica za mjerenje dužine, itd.): ")
-		fmt.Println()
-		fmt.Println("---------------------------------------------------------------")
-		Q := Scan("Količina ili broj stavki: ")
-		fmt.Println()
-		fmt.Println("---------------------------------------------------------------")
-		UPB := Scan("Jedinična cijena prije dodavanja PDV-a: ")
-		fmt.Println()
-		fmt.Println("---------------------------------------------------------------")
-		VR := Scan("Stopa PDV-a: ")
-		fmt.Println()
-		fmt.Println("---------------------------------------------------------------")
-		R := Scan("Procenat rabata: ")
-		EX := sep.ExemptFromVATType("")
-		fmt.Println()
-		fmt.Println("---------------------------------------------------------------")
-		fmt.Println("Izuzeće od plaćanja PDV-a:")
-		fmt.Println("[1] Da")
-		fmt.Println("[2] Ne")
-		stringValue = Scan("Izuzeće od plaćanja PDV-a: ")
-		uint64Value, err = strconv.ParseUint(stringValue, 10, 64)
-		if err != nil {
-			return "", err
-		}
-		if uint64Value == 1 {
-			fmt.Println("---------------------------------------------------------------")
-			fmt.Println("Izaberite član za izuzeće od plaćanja PDV-a:")
-			fmt.Println("[1] Mjesto prometa usluga (Član 17)")
-			fmt.Println("[2] Poreska osnovica i ispravka poreske osnovice (Član 20)")
-			fmt.Println("[3] Oslobođenja od javnog interesa (Član 26)")
-			fmt.Println("[4] Ostala oslobođenja (Član 27)")
-			fmt.Println("[5] Oslobođenja kod uvoza proizvoda (Član 28)")
-			fmt.Println("[6] Oslobođenja kod privremenog uvoza proizvoda (Član 29)")
-			fmt.Println("[7] Posebna oslobođenja (Član 30)")
-			stringValue = Scan("Izuzeće od plaćanja PDV-a: ")
-			uint64Value, err = strconv.ParseUint(stringValue, 10, 64)
+		N := ""
+		if params.Simplified {
+			fmt.Println("Naziv stavke (roba ili usluge):")
+			fmt.Println("[1] Knjigovodstvene usluge za period")
+			fmt.Println("[2] Pravne usluge")
+			fmt.Println("[3] Izreda zavrsnog racuna za period")
+			fmt.Println("[4] Ostalo")
+			stringValue := Scan("Naziv stavke (roba ili usluge): ")
+			uint64Value, err := strconv.ParseUint(stringValue, 10, 64)
 			if err != nil {
 				return "", err
 			}
 			switch uint64Value {
 			case 1:
-				EX = sep.CL17
+				tmp := Scan("Unesite period: ")
+				N = strings.Join([]string{"Knjigovodstvene usluge za", tmp}, " ")
 			case 2:
-				EX = sep.CL20
+				N = "Pravne usluge"
 			case 3:
-				EX = sep.CL26
+				tmp := Scan("Unesite period: ")
+				N = strings.Join([]string{"Izreda zavrsnog racuna za", tmp}, " ")
 			case 4:
-				EX = sep.CL27
-			case 5:
-				EX = sep.CL28
-			case 6:
-				EX = sep.CL29
-			case 7:
-				EX = sep.CL30
+				N = Scan("Naziv stavke (roba ili usluge): ")
 			default:
-				return "", fmt.Errorf("invalid EX")
+				return "", fmt.Errorf("invalid input")
+			}
+
+		} else {
+			N = Scan("Naziv stavke (roba ili usluge): ")
+		}
+
+		U := "kom"
+		if !params.Simplified {
+			fmt.Println()
+			fmt.Println("---------------------------------------------------------------")
+			U = Scan("Jedinica mjere (komad, jedinica za mjerenje težine, jedinica za mjerenje dužine, itd.): ")
+		}
+
+		Q := "1"
+		if !params.Simplified {
+			fmt.Println()
+			fmt.Println("---------------------------------------------------------------")
+			Q = Scan(fmt.Sprintf("Broj %s: ", U))
+		}
+		
+		fmt.Println()
+		fmt.Println("---------------------------------------------------------------")
+		UPB := Scan("Jedinična cijena prije dodavanja PDV-a: ")
+
+		VR := "21"
+		if !params.Simplified {
+			fmt.Println()
+			fmt.Println("---------------------------------------------------------------")
+			VR = Scan("Stopa PDV-a: ")	
+		}
+		
+		fmt.Println()
+		fmt.Println("---------------------------------------------------------------")
+		R := Scan("Procenat rabata: ")
+
+		EX := sep.ExemptFromVATType("")
+		if !params.Simplified {
+			EX = sep.ExemptFromVATType("")
+			fmt.Println()
+			fmt.Println("---------------------------------------------------------------")
+			fmt.Println("Izuzeće od plaćanja PDV-a:")
+			fmt.Println("[1] Da")
+			fmt.Println("[2] Ne")
+			stringValue = Scan("Izuzeće od plaćanja PDV-a: ")
+			uint64Value, err := strconv.ParseUint(stringValue, 10, 64)
+			if err != nil {
+				return "", err
+			}
+			if uint64Value == 1 {
+				fmt.Println("---------------------------------------------------------------")
+				fmt.Println("Izaberite član za izuzeće od plaćanja PDV-a:")
+				fmt.Println("[1] Mjesto prometa usluga (Član 17)")
+				fmt.Println("[2] Poreska osnovica i ispravka poreske osnovice (Član 20)")
+				fmt.Println("[3] Oslobođenja od javnog interesa (Član 26)")
+				fmt.Println("[4] Ostala oslobođenja (Član 27)")
+				fmt.Println("[5] Oslobođenja kod uvoza proizvoda (Član 28)")
+				fmt.Println("[6] Oslobođenja kod privremenog uvoza proizvoda (Član 29)")
+				fmt.Println("[7] Posebna oslobođenja (Član 30)")
+				stringValue = Scan("Izuzeće od plaćanja PDV-a: ")
+				uint64Value, err = strconv.ParseUint(stringValue, 10, 64)
+				if err != nil {
+					return "", err
+				}
+				switch uint64Value {
+				case 1:
+					EX = sep.CL17
+				case 2:
+					EX = sep.CL20
+				case 3:
+					EX = sep.CL26
+				case 4:
+					EX = sep.CL27
+				case 5:
+					EX = sep.CL28
+				case 6:
+					EX = sep.CL29
+				case 7:
+					EX = sep.CL30
+				default:
+					return "", fmt.Errorf("invalid EX")
+				}
 			}
 		}
 
