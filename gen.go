@@ -245,7 +245,7 @@ func GenerateRegisterInvoiceRequest(params *Params) (string, error) {
 		fmt.Println()
 		fmt.Println("---------------------------------------------------------------")
 		stringValue = Scan("Količina stavke: ")
-		NumOfItems, err := strconv.Atoi(stringValue)
+		NumOfItems, err = strconv.Atoi(stringValue)
 		if err != nil {
 			return "", err
 		}
