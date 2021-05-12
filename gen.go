@@ -241,7 +241,7 @@ func GenerateRegisterInvoiceRequest(params *Params) (string, error) {
 	}
 
 	NumOfItems := 1
-	if !params.Simplified {
+	// if !params.Simplified {
 		fmt.Println()
 		fmt.Println("---------------------------------------------------------------")
 		stringValue = Scan("Količina stavke: ")
@@ -253,7 +253,7 @@ func GenerateRegisterInvoiceRequest(params *Params) (string, error) {
 		if NumOfItems <= 0 {
 			return "", fmt.Errorf("number of items should be greater than 0")
 		}
-	}
+	// }
 
 	// Calculating the following values while fillign in Invoice.Items
 	TotPriceWoVAT := 0.0
