@@ -817,7 +817,7 @@ func PrintInvoiceDetails(inFile string, SepConfig *sep.Config, Clients *[]sep.Cl
 	for _, it := range *req.Invoice.Items {
 		PriceBeforeVAT += float64(it.UPB * it.Q)
 		Rebate += PriceBeforeVAT * (float64(it.R) / 100)
-		VATAmt += (PriceBeforeVAT - Rebate) * (float64(it.VR) / 100)
+		VATAmt += float64(it.VA)
 	}
 	Base21 := PriceBeforeVAT - Rebate
 	TotPrice := strconv.FormatFloat(float64(req.Invoice.TotPrice), 'f', 2, 64)
