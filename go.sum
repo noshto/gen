@@ -5,3 +5,5 @@ github.com/google/uuid v1.2.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+
 github.com/noshto/sep v0.0.16/go.mod h1:o34LxYoCqnrpwjfLkVL+PsET6M6THS2bntmXxtu32a8=
 github.com/noshto/sep v0.0.17 h1:4Ww/lirYSAbv3yh1g4QTGnH/MiExQv6PvhuibDbTCAM=
 github.com/noshto/sep v0.0.17/go.mod h1:o34LxYoCqnrpwjfLkVL+PsET6M6THS2bntmXxtu32a8=
+github.com/noshto/sep v0.0.18 h1:j04Kw1OA/dIjr/aRFOXbkwSlwvEr8r6Kh8D4trFPobU=
+github.com/noshto/sep v0.0.18/go.mod h1:o34LxYoCqnrpwjfLkVL+PsET6M6THS2bntmXxtu32a8=
