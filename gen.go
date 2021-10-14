@@ -242,17 +242,17 @@ func GenerateRegisterInvoiceRequest(params *Params) (string, error) {
 
 	NumOfItems := 1
 	// if !params.Simplified {
-		fmt.Println()
-		fmt.Println("---------------------------------------------------------------")
-		stringValue = Scan("Količina stavke: ")
-		NumOfItems, err = strconv.Atoi(stringValue)
-		if err != nil {
-			return "", err
-		}
+	fmt.Println()
+	fmt.Println("---------------------------------------------------------------")
+	stringValue = Scan("Količina stavke: ")
+	NumOfItems, err = strconv.Atoi(stringValue)
+	if err != nil {
+		return "", err
+	}
 
-		if NumOfItems <= 0 {
-			return "", fmt.Errorf("number of items should be greater than 0")
-		}
+	if NumOfItems <= 0 {
+		return "", fmt.Errorf("number of items should be greater than 0")
+	}
 	// }
 
 	// Calculating the following values while fillign in Invoice.Items
@@ -473,7 +473,6 @@ func GenerateRegisterInvoiceRequest(params *Params) (string, error) {
 
 	Invoice := &sep.Invoice{
 		TypeOfInv:       sep.TypeOfInv(TypeOfInv),
-		IsSimplifiedInv: false,
 		IssueDateTime:   sep.DateTime(IssueDateTime),
 		InvNum:          InvNum,
 		InvOrdNum:       sep.InvOrdNum(InvOrdNum),
@@ -816,7 +815,7 @@ func PrintInvoiceDetails(inFile string, SepConfig *sep.Config, Clients *[]sep.Cl
 	VATAmt := float64(0)
 	for _, it := range *req.Invoice.Items {
 		PriceBeforeVAT += float64(it.UPB * it.Q)
-		Rebate += float64(it.UPB * it.Q)*float64(it.R/100)
+		Rebate += float64(it.UPB*it.Q) * float64(it.R/100)
 		VATAmt += float64(it.VA)
 	}
 	Base21 := PriceBeforeVAT - Rebate
@@ -850,7 +849,7 @@ func GenerateCorrectiveRegisterInvoiceRequest(params *Params) (string, error) {
 	fmt.Println()
 
 	IICRef := Scan("IKOF referenca na originalni račun: ")
-	
+
 	fmt.Println("---------------------------------------------------------------")
 	fmt.Println()
 	stringValue := Scan("Datum i vrijeme kada je originalni račun kreiran i izdat od strane ENU: ")
@@ -1311,7 +1310,6 @@ func GenerateCorrectiveRegisterInvoiceRequest(params *Params) (string, error) {
 
 	Invoice := &sep.Invoice{
 		TypeOfInv:       sep.TypeOfInv(TypeOfInv),
-		IsSimplifiedInv: false,
 		IssueDateTime:   sep.DateTime(IssueDateTime),
 		InvNum:          InvNum,
 		InvOrdNum:       sep.InvOrdNum(InvOrdNum),
@@ -1330,10 +1328,10 @@ func GenerateCorrectiveRegisterInvoiceRequest(params *Params) (string, error) {
 		Buyer:           Buyer,
 		Items:           &Items,
 		SameTaxes:       &SameTaxes,
-		CorrectiveInv: 	 &sep.CorrectiveInv{
-			IICRef: 		IICRef,
-			IssueDateTime: 	CorrectiveInvIssueDateTime,
-			Type: 			sep.CORRECTIVE,
+		CorrectiveInv: &sep.CorrectiveInv{
+			IICRef:        IICRef,
+			IssueDateTime: CorrectiveInvIssueDateTime,
+			Type:          sep.CORRECTIVE,
 		},
 	}
 
@@ -1398,7 +1396,7 @@ func GenerateSummaryRegisterInvoiceRequest(params *Params) (string, error) {
 	fmt.Println()
 
 	SumInvIICRefs := []sep.SumInvIICRef{}
-	
+
 	IICRef := Scan("IKOF referenca na originalni račun: ")
 
 	fmt.Println("---------------------------------------------------------------")
@@ -1412,7 +1410,7 @@ func GenerateSummaryRegisterInvoiceRequest(params *Params) (string, error) {
 	SumInvIICRefs = append(
 		SumInvIICRefs,
 		sep.SumInvIICRef{
-			IIC: IICRef,
+			IIC:           IICRef,
 			IssueDateTime: CorrectiveInvIssueDateTime,
 		},
 	)
@@ -1438,12 +1436,12 @@ func GenerateSummaryRegisterInvoiceRequest(params *Params) (string, error) {
 		SumInvIICRefs = append(
 			SumInvIICRefs,
 			sep.SumInvIICRef{
-				IIC: IICRef,
+				IIC:           IICRef,
 				IssueDateTime: CorrectiveInvIssueDateTime,
 			},
 		)
 	}
-	
+
 	// Type Of Invoice
 	TypeOfInv := sep.NONCASH
 	if !params.Simplified {
@@ -1896,7 +1894,6 @@ func GenerateSummaryRegisterInvoiceRequest(params *Params) (string, error) {
 
 	Invoice := &sep.Invoice{
 		TypeOfInv:       sep.TypeOfInv(TypeOfInv),
-		IsSimplifiedInv: false,
 		IssueDateTime:   sep.DateTime(IssueDateTime),
 		InvNum:          InvNum,
 		InvOrdNum:       sep.InvOrdNum(InvOrdNum),
@@ -1920,7 +1917,7 @@ func GenerateSummaryRegisterInvoiceRequest(params *Params) (string, error) {
 		// 	IssueDateTime: 	CorrectiveInvIssueDateTime,
 		// 	Type: 			sep.CORRECTIVE,
 		// },
-		SumInvIICRefs: 	 &SumInvIICRefs,
+		SumInvIICRefs: &SumInvIICRefs,
 	}
 
 	// Generate RegisterInvoiceRequest
