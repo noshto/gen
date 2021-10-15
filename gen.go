@@ -25,6 +25,40 @@ type Params struct {
 // GenerateRegisterInvoiceRequest generates RegisterInvoiceRequest in a quiz mode
 func GenerateRegisterInvoiceRequest(params *Params) (string, error) {
 
+	InvType := sep.InvTypeINVOICE
+	if !params.Simplified {
+		fmt.Println()
+		fmt.Println("---------------------------------------------------------------")
+		fmt.Println("Izaberite Tip računa:")
+		fmt.Println("[1] Račun (INVOICE)")
+		fmt.Println("[2] Korektivni račun (CORRECTIVE)")
+		fmt.Println("[3] Zbirni račun (SUMMARY)")
+		fmt.Println("[4] Periodični račun (PERIODICAL)")
+		fmt.Println("[5] Avansni račun (ADVANCE)")
+		fmt.Println("[6] Knjižno odobrenje (CREDIT_NOTE)")
+		stringValue := Scan("Tip računa: ")
+		uint64Value, err := strconv.ParseUint(stringValue, 10, 64)
+		if err != nil {
+			return "", err
+		}
+		switch uint64Value {
+		case 1:
+			InvType = sep.InvTypeINVOICE
+		case 2:
+			InvType = sep.InvTypeCORRECTIVE
+		case 3:
+			InvType = sep.InvTypeSUMMARY
+		case 4:
+			InvType = sep.InvTypePERIODICAL
+		case 5:
+			InvType = sep.InvTypeADVANCE
+		case 6:
+			InvType = sep.InvTypeCREDIT_NOTE
+		default:
+			return "", fmt.Errorf("invalid InvType")
+		}
+	}
+
 	// Type Of Invoice
 	TypeOfInv := sep.NONCASH
 	if !params.Simplified {
@@ -472,6 +506,7 @@ func GenerateRegisterInvoiceRequest(params *Params) (string, error) {
 	)
 
 	Invoice := &sep.Invoice{
+		InvType:         sep.InvType(InvType),
 		TypeOfInv:       sep.TypeOfInv(TypeOfInv),
 		IssueDateTime:   sep.DateTime(IssueDateTime),
 		InvNum:          InvNum,
@@ -1309,6 +1344,7 @@ func GenerateCorrectiveRegisterInvoiceRequest(params *Params) (string, error) {
 	)
 
 	Invoice := &sep.Invoice{
+		InvType:         sep.InvType(sep.InvTypeCORRECTIVE),
 		TypeOfInv:       sep.TypeOfInv(TypeOfInv),
 		IssueDateTime:   sep.DateTime(IssueDateTime),
 		InvNum:          InvNum,
@@ -1893,6 +1929,7 @@ func GenerateSummaryRegisterInvoiceRequest(params *Params) (string, error) {
 	)
 
 	Invoice := &sep.Invoice{
+		InvType:         sep.InvType(sep.InvTypeSUMMARY),
 		TypeOfInv:       sep.TypeOfInv(TypeOfInv),
 		IssueDateTime:   sep.DateTime(IssueDateTime),
 		InvNum:          InvNum,
